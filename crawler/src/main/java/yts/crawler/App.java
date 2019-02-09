@@ -9,22 +9,24 @@ public class App {
 	static Extractor extractor = new Extractor();
 	static Downloader downloader = new Downloader();
 	
-    public static void main( String[] args ) {
+    public static void main(String[] args) {
     	
     	System.out.println( "Welcome to the YTS.am crawler." );
     	System.out.println( "*******************************" );
     	
     	// Start URL
-    	String url = "https://yts.am/browse-movies"; //?page=515";
+    	String url = "https://yts.am/browse-movies?page=519";
     	// String path = "/home/psycho/Desktop/movies/";
-    	String path = "/run/media/psycho/PENe/movies/";
+    	String path = args[0];
     	    	
     	ArrayList<String> movie_urls = new ArrayList<String>();
     	
     	ArrayList<ArrayList<String>> download_movies = new ArrayList<ArrayList<String>>();
     	
-    	// Test connection with the main database
-    	dbManager.testConnect();
+    	// Test connection with the main database & creates a new one if this !exists
+    	boolean ddbb_exists = dbManager.testConnect();
+    	if(!ddbb_exists)
+    		dbManager.createNewDatabase();
     	
     	// Create a temporal database
     	dbManager.create_tmp_table();
@@ -50,7 +52,7 @@ public class App {
     	// Delete temporal database
     	dbManager.delete_tmp_table();
     	    	
-    	System.out.println( "All done!" );
+    	System.out.println("All done!");
     	System.out.println("Crawled: " + total_crawled);
     	System.out.println("Downloaded: " + total_downloaded);
     	

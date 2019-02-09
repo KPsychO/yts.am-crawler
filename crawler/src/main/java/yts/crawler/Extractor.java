@@ -10,8 +10,6 @@ import org.jsoup.select.Elements;
 
 public class Extractor {
 	
-	
-	
 	private ArrayList<String> extract_movie_info(String url, DatabaseManager dbManager) {
 		
 		ArrayList<String> movie_info = new ArrayList<String>();

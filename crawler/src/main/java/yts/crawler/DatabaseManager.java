@@ -1,5 +1,6 @@
 package yts.crawler;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -11,38 +12,68 @@ import java.util.ArrayList;
 public class DatabaseManager {
 	
 	private static String path = "jdbc:sqlite:/home/psycho/Desktop/scripts/yts_crawler/yts_database.db";
+    private static String file_path = "/home/psycho/Desktop/scripts/yts_crawler/yts_database.db";
+	
 		
 	// Test connection with the database
-	public void testConnect() {
+	public boolean testConnect() {
 	    	
-		Connection conn = null;
+		boolean ret = false;
 		
-		try {
-		  
-			conn = DriverManager.getConnection(path);
-		    
-		    System.out.println("Connection to the database has been stablished.");
-		    
-		} catch (SQLException e) {
+		File database = new File (file_path);
+		if (database.exists()) {
 			
-		    System.out.println(e.getMessage());
-		    
-		} finally {
+			ret = true;
+			System.out.println("Database on path " + path + " located");
 			
-		    try {
-		    	
-		        if (conn != null)
-		        	conn.close();
-		        
-		    } catch (SQLException ex) {
-		    	
-		        System.out.println(ex.getMessage());
-		    
-		    }
-		    
 		}
+		
+		return ret;
 	    
 	}
+	
+    public void createNewDatabase() {
+    	 
+        String url = path;
+ 
+        try (Connection conn = DriverManager.getConnection(url)) {
+        	
+            if (conn != null) {
+                
+                System.out.println("Database in path " + path + " has been created succesfully");
+                this.create_movies_table(conn);
+                
+            }
+ 
+        } catch (SQLException e) {
+        	
+            System.out.println(e.getMessage());
+            
+        }
+        
+    }
+ 
+	private void create_movies_table(Connection conn) throws SQLException {
+		
+		String sql = "CREATE TABLE `movies` (\n" + 
+				"	`movie_id`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,\n" + 
+				"	`movie_url`	TEXT NOT NULL,\n" + 
+				"	`movie_title`	TEXT,\n" + 
+				"	`movie_year`	INTEGER,\n" + 
+				"	`movie_genre`	TEXT,\n" + 
+				"	`movie_3D_torrent`	TEXT,\n" + 
+				"	`movie_720p_torrent`	TEXT,\n" + 
+				"	`movie_1080p_torrent`	TEXT,\n" + 
+				"	`movie_thumbnail`	TEXT\n" + 
+				");";
+		
+		Statement stmt = conn.createStatement();
+		stmt.execute(sql);
+		
+		System.out.println("Table 'movies' created succesfully in /home/psycho/Desktop/scripts/yts_crawler/yts_database.db");
+		
+	}
+    
 	
 	// Creates the connection with the database
 	private Connection connect(String path) {
@@ -62,6 +93,7 @@ public class DatabaseManager {
 		return conn;
     
 	}
+	
 	
 	// Creates a temporary table to avoid downloading the same movie 2 times
 	public void create_tmp_table() {
@@ -129,6 +161,7 @@ public class DatabaseManager {
     
     }
 
+	
 	// Deletes the temporary table
 	public void delete_tmp_table() {
 		
